@@ -22,3 +22,5 @@
 
 ### upgrade/ downgrade
 ```alembic upgrade head```
+
+### install psycopg2-binafy

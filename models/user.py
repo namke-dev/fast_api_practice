@@ -6,6 +6,7 @@ from pydantic import BaseModel
 
 class UserModel(BaseModel):
     id: UUID
+    company_id: UUID
     username: str
     email: Optional[str]
     first_name: str

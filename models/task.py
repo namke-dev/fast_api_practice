@@ -6,6 +6,7 @@ from pydantic import BaseModel
 
 class TaskModel(BaseModel):
     id: UUID
+    user_id: UUID
     summary: str
     description: Optional[str]
     status: str
