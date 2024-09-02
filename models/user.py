@@ -16,6 +16,16 @@ class UserModel(BaseModel):
     isAdmin: bool
 
 class UserClaims(BaseModel):
-    id: UUID
+    id: str
     isActive: bool
     isAdmin: bool
+    
+class SearchUserModel(BaseModel):
+    username: str | None = None
+    email: str | None = None
+    is_active: bool | None = None
+    page: int = 1
+    size: int = 10
+
+    class Config:
+        orm_mode = True

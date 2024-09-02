@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from fastapi.security import OAuth2PasswordRequestForm
 
-from database import get_db_context
+from database.get_db import get_db_context
 from services import user as UserService
 from services.exception import UnAuthorizedError
 from settings import COGNITO
