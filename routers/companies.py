@@ -3,7 +3,7 @@ from uuid import UUID
 from fastapi import APIRouter, status, Depends, Query
 from sqlalchemy.orm import Session
 
-from database.get_db import get_db_context
+from database.get_db import *
 from models.user import UserClaims
 from services import company as CompanyService
 from services.exception import *
