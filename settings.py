@@ -27,3 +27,12 @@ ADMIN_DEFAULT_PASSWORD = os.environ.get("DEFAULT_PASSWORD")
 # JWT Setting
 JWT_SECRET = os.environ.get("JWT_SECRET")
 JWT_ALGORITHM = os.environ.get("JWT_ALGORITHM")
+
+# API Service Security Setting
+COGNITO = {
+    "ENABLED": os.environ.get("COGNITO_ENABLED") == 'true',
+    "HOST": os.environ.get("COGNITO_HOST"),
+    "CLIENT_ID": os.environ.get("COGNITO_CLIENT_ID"),
+    "CLIENT_SECRET": os.environ.get("COGNITO_CLIENT_SECRET"),
+    "JWKS_URL": os.environ.get("COGNITO_JWKS_URL"),
+}
