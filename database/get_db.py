@@ -17,6 +17,8 @@ async def get_async_db_context():
     async with AsyncSessionLocal() as async_db:
         yield async_db
 
+print("==>>" + SQLALCHEMY_DATABASE_URL)
+print("==>>" + SQLALCHEMY_DATABASE_URL_ASYNC)
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 async_engine = create_async_engine(SQLALCHEMY_DATABASE_URL_ASYNC)
 

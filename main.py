@@ -2,7 +2,7 @@ from fastapi import FastAPI
 
 from routers.users import user_router
 from routers.tasks import task_router
-from routers.companies import company_router
+from routers.companies import router as company_router
 
 app = FastAPI()
 

@@ -1,25 +1,53 @@
+from typing import List
 from uuid import UUID
-from fastapi import APIRouter, status, Query
-from models.company import CompanyModel
+from fastapi import APIRouter, status, Depends, Query
+from sqlalchemy.orm import Session
 
-company_router = APIRouter(prefix="/companies", tags=["companies"])
+from database.get_db import get_db_context
+from models.user import UserClaims
+from services import company as CompanyService
+from services.exception import *
+from models.company import CompanyModel, CompanyViewModel, SearchCompanyModel
+from services.auth import authorizer
 
-COMPANIES = [{"id": UUID(int=i), "name": f"Company {i}", "description": None, "mode": "mode", "rating": i} for i in range(1, 11)]
+router = APIRouter(prefix="/companies", tags=["Companies"])
 
+@router.get("", status_code=status.HTTP_200_OK, response_model=List[CompanyViewModel])
+async def get_all_companies(
+    name: str = Query(default=None),
+    mode: str = Query(default=None),
+    page: int = Query(ge=1, default=1),
+    size: int = Query(ge=1, le=50, default=10),
+    db: Session = Depends(get_db_context),
+    user: UserClaims = Depends(authorizer),
+):
+    conds = SearchCompanyModel(name=name, mode=mode, page=page, size=size)
+    return CompanyService.get_companies(db, conds)
 
-# Company Router
-@company_router.get("/find/{company_id}", status_code=status.HTTP_200_OK)
-async def find_company(company_id: UUID):
-    company = next((comp for comp in COMPANIES if comp["id"] == company_id), None)
-    if not company:
-        return {"message": "Company not found"}
+@router.post("", status_code=status.HTTP_201_CREATED, response_model=CompanyViewModel)
+async def create_company(
+    request: CompanyModel, 
+    db: Session = Depends(get_db_context),
+    user: UserClaims = Depends(authorizer),
+):
+    return CompanyService.add_new_company(db, request)
+
+@router.get("/{company_id}", response_model=CompanyViewModel)
+async def get_company_detail(
+    company_id: UUID, 
+    db: Session = Depends(get_db_context),
+):
+    company = CompanyService.get_company_by_id(db, company_id)
+    
+    if company is None:
+        raise ResourceNotFoundError()
+
     return company
 
-@company_router.get("/all", status_code=status.HTTP_200_OK)
-async def read_companies() -> list[CompanyModel]:
-    return COMPANIES
-
-@company_router.post("/", status_code=status.HTTP_201_CREATED)
-async def add_company(request: CompanyModel):
-    COMPANIES.append(request.dict())
-    return {"message": "Company added successfully"}
+@router.put("/{company_id}", status_code=status.HTTP_200_OK, response_model=CompanyViewModel)
+async def update_company(
+    company_id: UUID,
+    request: CompanyModel,
+    db: Session = Depends(get_db_context),
+):
+    return CompanyService.update_company(db, company_id, request)

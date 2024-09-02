@@ -14,3 +14,8 @@ class UserModel(BaseModel):
     password: str
     isActive: bool
     isAdmin: bool
+
+class UserClaims(BaseModel):
+    id: UUID
+    isActive: bool
+    isAdmin: bool
