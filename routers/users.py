@@ -1,23 +1,41 @@
+from typing import Optional
+from fastapi import APIRouter, HTTPException, Depends, status
+from sqlalchemy.orm import Session
 from uuid import UUID
-from fastapi import APIRouter, status, Query
-from models.user import UserModel
+from models.user import UserCreateModel, UserUpdateModel, SearchUserModel, UserViewModel
+from services.user import get_users, get_user_by_id, add_new_user, update_user_service, authenticate_user, create_access_token
+from database.get_db import *
 
-user_router =  APIRouter(prefix="/user", tags=["user"])
 
-USERS = [{"id": UUID(int=i), "username": f"user{i}", "email": None, "first_name": "First", "last_name": "Last", "password": "pass", "isActive": True, "isAdmin": False} for i in range(1, 11)]
+router = APIRouter(prefix="/users", tags=["Users"])
 
-@user_router.get("/find/{user_id}", status_code=status.HTTP_200_OK)
-async def find_user(user_id: UUID):
-    user = next((usr for usr in USERS if usr["id"] == user_id), None)
-    if not user:
-        return {"message": "User not found"}
+@router.get("/", status_code=status.HTTP_200_OK, response_model=list[UserViewModel])
+def list_users(
+    username: Optional[str] = None,
+    company_id: Optional[UUID] = None,
+    page: int = 1,
+    size: int = 10,
+    db: Session = Depends(get_db_context)
+):
+    conds = SearchUserModel(username=username, company_id=company_id, page=page, size=size)
+    users = get_users(db, conds)
+    return users
+
+@router.get("/{user_id}", status_code=status.HTTP_200_OK, response_model=UserViewModel)
+def read_user(user_id: UUID, db: Session = Depends(get_db_context)):
+    user = get_user_by_id(db, user_id)
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
     return user
 
-@user_router.get("/all", status_code=status.HTTP_200_OK)
-async def read_users() -> list[UserModel]:
-    return USERS
+@router.post("/", status_code=status.HTTP_200_OK, response_model=UserViewModel)
+def create_user(data: UserCreateModel, db: Session = Depends(get_db_context)):
+    user = add_new_user(db, data)
+    return user
 
-@user_router.post("/", status_code=status.HTTP_201_CREATED)
-async def add_user(request: UserModel):
-    USERS.append(request.dict())
-    return {"message": "User added successfully"}
+@router.put("/{user_id}", status_code=status.HTTP_200_OK, response_model=UserViewModel)
+def update_user(user_id: UUID, data: UserUpdateModel, db: Session = Depends(get_db_context)):
+    user = update_user_service(db, user_id, data)  # This line is causing recursion
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user

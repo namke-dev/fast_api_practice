@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from routers.users import user_router
+from routers.users import router as user_router
 from routers.tasks import router as task_router
 from routers.companies import router as company_router
 from routers.auth import router as auth_router

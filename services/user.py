@@ -3,7 +3,7 @@ from uuid import UUID
 from sqlalchemy import select
 from sqlalchemy.orm import Session, joinedload
 from schemas.user import User
-from models.user import UserModel, SearchUserModel
+from models.user import UserModel, SearchUserModel, UserUpdateModel
 from services.exception import ResourceNotFoundError, InvalidInputError
 
 from typing import Optional
@@ -12,23 +12,25 @@ from datetime import timedelta
 import jwt
 from sqlalchemy import select
 from sqlalchemy.orm import Session
-from models.user import UserClaims
+from models.user import UserClaims, UserViewModel
 from schemas.user import User
 from services.utils import get_current_timestamp
 from settings import JWT_ALGORITHM, JWT_SECRET
 
 
-def get_users(db: Session, conds: SearchUserModel) -> List[User]:
-    query = select(User).options(joinedload(User.company, innerjoin=True))
+def get_users(db: Session, conds: SearchUserModel) -> list[UserViewModel]:
+    query = select(User)
     
-    if conds.name is not None:
-        query = query.filter(User.name.like(f"{conds.name}%"))
-    if conds.company_id is not None:
+    if conds.username:
+        query = query.filter(User.username.like(f"{conds.username}%"))  # Assuming you meant to filter by username.
+    if conds.company_id:
         query = query.filter(User.company_id == conds.company_id)
     
-    query.offset((conds.page-1)*conds.size).limit(conds.size)
+    # Pagination
+    query = query.offset((conds.page - 1) * conds.size).limit(conds.size)
     
-    return db.scalars(query).all()
+    results = db.scalars(query).all()
+    return results
 
 
 def get_user_by_id(db: Session, id: UUID, /, joined_load = False) -> User:
@@ -48,16 +50,21 @@ def add_new_user(db: Session, data: UserModel) -> User:
     
     return user
 
-def update_user(db: Session, id: UUID, data: UserModel) -> User:
+def update_user_service(db: Session, id: UUID, data: UserUpdateModel) -> User:
     user = get_user_by_id(db, id)
 
     if user is None:
         raise ResourceNotFoundError()
 
-    user.name = data.name
+    user.username = data.username
     user.email = data.email
     user.company_id = data.company_id
-    user.updated_at = get_current_utc_time()
+    user.first_name= data.first_name
+    user.last_name= data.last_name
+    user.password= data.password
+    user.is_active= data.is_active
+    user.is_admin= data.is_admin
+    
     
     db.commit()
     db.refresh(user)

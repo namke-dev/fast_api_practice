@@ -19,7 +19,6 @@ async def get_all_companies(
     page: int = Query(ge=1, default=1),
     size: int = Query(ge=1, le=50, default=10),
     db: Session = Depends(get_db_context),
-    user: UserClaims = Depends(authorizer),
 ):
     conds = SearchCompanyModel(name=name, mode=mode, page=page, size=size)
     return CompanyService.get_companies(db, conds)
@@ -28,7 +27,6 @@ async def get_all_companies(
 async def create_company(
     request: CompanyCreateModel, 
     db: Session = Depends(get_db_context),
-    user: UserClaims = Depends(authorizer),
 ):
     return CompanyService.add_new_company(db, request)
 
