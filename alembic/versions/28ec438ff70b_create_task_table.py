@@ -9,6 +9,8 @@ from typing import Sequence, Union
 
 from alembic import op
 import sqlalchemy as sa
+
+import uuid
 from sqlalchemy.dialects.postgresql import UUID
 
 
@@ -22,11 +24,12 @@ depends_on: Union[str, Sequence[str], None] = None
 def upgrade() -> None:
     op.create_table(
         'tasks',
-        sa.Column('id', UUID(as_uuid=True), primary_key=True, nullable=False),
+        sa.Column('id', UUID(as_uuid=True), primary_key=True, default=uuid.uuid4),
         sa.Column('summary', sa.String(255), nullable=False),
         sa.Column('description', sa.String(), nullable=True),
         sa.Column('status', sa.String(50), nullable=False),
         sa.Column('priority', sa.SmallInteger, nullable=False),
+        sa.Column('user_id', UUID(as_uuid=True), sa.ForeignKey('users.id'), nullable=False)
     )
 
 

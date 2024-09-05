@@ -23,6 +23,15 @@ class CompanyViewModel(BaseModel):
 
     class Config:
         orm_mode = True
+
+class CompanyCreateModel(BaseModel):
+    name: str
+    description: str | None
+    mode: str
+    rating: int
+
+    class Config:
+        orm_mode = True
         
 
 class SearchCompanyModel(BaseModel):

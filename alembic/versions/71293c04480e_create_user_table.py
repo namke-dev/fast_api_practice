@@ -9,6 +9,8 @@ from typing import Sequence, Union
 
 from alembic import op
 import sqlalchemy as sa
+
+import uuid
 from sqlalchemy.dialects.postgresql import UUID
 
 
@@ -23,7 +25,7 @@ depends_on: Union[str, Sequence[str], None] = None
 def upgrade() -> None:
     op.create_table(
         'users',
-        sa.Column('id', UUID(as_uuid=True), primary_key=True, nullable=False),
+        sa.Column('id', UUID(as_uuid=True), primary_key=True, default=uuid.uuid4),
         sa.Column('username', sa.String(255), nullable=False),
         sa.Column('email', sa.String(255), nullable=True),
         sa.Column('first_name', sa.String(255), nullable=False),
@@ -31,8 +33,8 @@ def upgrade() -> None:
         sa.Column('password', sa.String(255), nullable=False),
         sa.Column('is_active', sa.Boolean(), nullable=False),
         sa.Column('is_admin', sa.Boolean(), nullable=False),
+        sa.Column('company_id', UUID(as_uuid=True), sa.ForeignKey('companies.id'), nullable=False)
     )
-
 
 def downgrade() -> None:
     op.drop_table('users')

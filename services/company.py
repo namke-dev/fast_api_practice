@@ -1,8 +1,9 @@
+import uuid
 from uuid import UUID
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from schemas.company import Company
-from models.company import CompanyModel, SearchCompanyModel
+from models.company import CompanyModel, SearchCompanyModel, CompanyCreateModel
 from services.utils import get_current_utc_time
 from services.exception import ResourceNotFoundError, InvalidInputError
 
@@ -23,8 +24,13 @@ def get_company_by_id(db: Session, id: UUID):
     
     return db.scalars(query).first()
 
-def add_new_company(db: Session, data: CompanyModel) -> Company:
-    company = Company(**data.model_dump())
+def add_new_company(db: Session, data: CompanyCreateModel) -> Company:
+    company = Company(
+        name=data.name,
+        description=data.description,
+        mode=data.mode,
+        rating=data.rating
+    )
     company.created_at = get_current_utc_time()
     company.updated_at = get_current_utc_time()
 

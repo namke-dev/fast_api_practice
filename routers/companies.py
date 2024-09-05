@@ -7,7 +7,7 @@ from database.get_db import *
 from models.user import UserClaims
 from services import company as CompanyService
 from services.exception import *
-from models.company import CompanyModel, CompanyViewModel, SearchCompanyModel
+from models.company import CompanyModel, CompanyViewModel, SearchCompanyModel, CompanyCreateModel
 from services.auth import authorizer
 
 router = APIRouter(prefix="/companies", tags=["Companies"])
@@ -26,7 +26,7 @@ async def get_all_companies(
 
 @router.post("", status_code=status.HTTP_201_CREATED, response_model=CompanyViewModel)
 async def create_company(
-    request: CompanyModel, 
+    request: CompanyCreateModel, 
     db: Session = Depends(get_db_context),
     user: UserClaims = Depends(authorizer),
 ):

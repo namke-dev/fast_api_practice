@@ -20,12 +20,6 @@
 ```pip install sqlalchemy```
 ```pip install psycopg2 -binary```
 
-### Create revision for book table
-```alembic revision -m "create book table"```
-
-### upgrade/ downgrade
-```alembic upgrade head```
-
 ### install psycopg2-binary
 ```pip install spycopg2-binary```
 
@@ -44,6 +38,13 @@ DEFAULT_PASSWORD=secrec@123
 JWT_SECRET=secrec@123
 JWT_ALGORITHM=HS256
 ```
+### Create revision for book table
+```alembic revision -m "create book table"```
+
+### upgrade/ downgrade
+```alembic upgrade head```
 
 ### run project
 ```uvicorn main:app --reload```
+
+### get auth token with acocunt: admin/123456
